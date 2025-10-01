@@ -22,8 +22,18 @@ class GetRandomPokemon
         return [
             'id' => $pokemon->getId(),
             'name' => $pokemon->getName(),
+            'nickname' => $pokemon->getNickname(),
+            'types' => array_map(fn($t) => $t->getName(), $pokemon->getType()->toArray()),
             'level' => $pokemon->getLevel(),
-            'types' => array_map(fn($t)=> $t->getName(), $pokemon->getType()->toArray())
+            'health_points' => $pokemon->getHealthPoints(),
+            'attack' => $pokemon->getAttack(),
+            'defense' => $pokemon->getDefense(),
+            'speed' => $pokemon->getSpeed(),
+            'catch_rate' => $pokemon->getCatchRate(),
+            'moves' => array_map(fn($m) => [
+                'id' => $m->getId(),
+                'name' => $m->getName()
+            ], $pokemon->getMove()->toArray())
         ];
     }
 }
