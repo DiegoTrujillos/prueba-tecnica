@@ -2,6 +2,7 @@
 namespace App\Infrastructure\Repository;
 
 use App\Domain\Entity\Pokemon;
+use App\Domain\Entity\User;
 use App\Domain\Repository\PokemonRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -29,9 +30,15 @@ class DoctrinePokemonRepository extends ServiceEntityRepository implements Pokem
             ->getOneOrNullResult();
     }
 
+    public function findByTrainer(User $trainer): array
+    {
+        return $this->findBy(['trainer' => $trainer]);
+    }
+
     public function save(Pokemon $pokemon): void
     {
-        $this->_em->persist($pokemon);
-        $this->_em->flush();
+        $em = $this->getEntityManager();
+        $em->persist($pokemon);
+        $em->flush();
     }
 }

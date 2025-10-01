@@ -60,6 +60,16 @@ class Pokemon
         $this->moves = new ArrayCollection();
     }
 
+    public function getTypes(): Collection
+    {
+        return $this->types;
+    }
+
+    public function getMoves(): Collection
+    {
+        return $this->moves;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
