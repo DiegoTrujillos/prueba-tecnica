@@ -20,5 +20,22 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Infrastructure\Repository\DoctrineUserRepository:
+        arguments:
+            $registry: '@doctrine'
+    App\Infrastructure\Repository\DoctrinePokemonRepository:
+        arguments:
+            $registry: '@doctrine'
+    App\Infrastructure\Repository\DoctrineTypeRepository:
+        arguments:
+            $registry: '@doctrine'
+    App\Infrastructure\Repository\DoctrineMoveRepository:
+        arguments:
+            $registry: '@doctrine'
+
+    App\Domain\Repository\UserRepositoryInterface: '@App\Infrastructure\Repository\DoctrineUserRepository'
+    App\Domain\Repository\PokemonRepositoryInterface: '@App\Infrastructure\Repository\DoctrinePokemonRepository'
+    App\Domain\Repository\TypeRepositoryInterface: '@App\Infrastructure\Repository\DoctrineTypeRepository'
+    App\Domain\Repository\MoveRepositoryInterface: '@App\Infrastructure\Repository\DoctrineMoveRepository'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

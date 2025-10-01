@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Command;
+namespace App\Application\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use App\Entity\User;
-use App\Entity\Pokemon;
-use App\Entity\Type;
-use App\Entity\Move;
+use App\Domain\Entity\User;
+use App\Domain\Entity\Pokemon;
+use App\Domain\Entity\Type;
+use App\Domain\Entity\Move;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
