@@ -3,6 +3,9 @@ namespace App\Controller\Api;
 
 use App\Application\UseCase\GetRandomPokemon;
 use App\Application\UseCase\AssignMoveToPokemon;
+use App\Application\UseCase\RemoveMoveFromPokemon;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,6 +62,34 @@ class PokemonController extends AbstractController
             ]);
         } catch (\DomainException $e) {
             return $this->json(['error' => $e->getMessage()], 400);
+        }
+    }
+    #[Route('/{pokemonId}/moves/{moveId}', name: 'api_pokemon_forget_move', methods: ['DELETE'])]
+    public function forgetMove(
+        int $pokemonId,
+        int $moveId,
+        RemoveMoveFromPokemon $removeMoveFromPokemon
+    ): JsonResponse {
+        try {
+            $pokemon = $removeMoveFromPokemon->execute($pokemonId, $moveId);
+
+            return $this->json([
+                'message' => 'El movimiento ha sido olvidado.',
+                'pokemon' => [
+                    'id' => $pokemon->getId(),
+                    'name' => $pokemon->getName(),
+                    'nickname' => $pokemon->getNickname(),
+                    'level' => $pokemon->getLevel(),
+                    'moves' => array_map(fn($move) => [
+                        'id' => $move->getId(),
+                        'name' => $move->getName()
+                    ], $pokemon->getMoves()->toArray())
+                ]
+            ]);
+        } catch (\DomainException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
+        } catch (NotFoundHttpException | AccessDeniedHttpException $e) {
+            return $this->json(['error' => $e->getMessage()], 404);
         }
     }
 }
