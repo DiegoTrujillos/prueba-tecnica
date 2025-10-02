@@ -11,7 +11,11 @@ framework:
         handler_id: null
         cookie_secure: auto
         cookie_samesite: lax
-
+        
+    http_client:
+        default_options:
+            verify_peer: false
+            verify_host: false
     #esi: true
     #fragments: true
     php_errors:
