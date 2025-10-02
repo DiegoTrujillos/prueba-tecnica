@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 use App\Application\UseCase\GetRandomPokemon;
 use App\Application\UseCase\AssignMoveToPokemon;
 use App\Application\UseCase\RemoveMoveFromPokemon;
+use App\Application\UseCase\AssignTypeToPokemon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -90,6 +91,36 @@ class PokemonController extends AbstractController
             return $this->json(['error' => $e->getMessage()], 400);
         } catch (NotFoundHttpException | AccessDeniedHttpException $e) {
             return $this->json(['error' => $e->getMessage()], 404);
+        }
+    }
+    #[Route('/{pokemonId}/assign-type', name: 'pokemon_assign_type', methods: ['POST'])]
+    public function assignType(
+        Request $request,
+        int $pokemonId,
+        AssignTypeToPokemon $AssignTypeToPokemon
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $typeId = $data['typeId'] ?? null;
+
+        if (!$typeId) {
+            return $this->json(['error' => 'Se requiere el ID del tipo.'], 400);
+        }
+
+        try {
+            $pokemon = $AssignTypeToPokemon->execute( (int) $pokemonId, (int) $typeId);
+
+            return $this->json([
+                'message' => 'Tipo asignado correctamente',
+                'pokemon' => [
+                    'id' => $pokemon->getId(),
+                    'name' => $pokemon->getName(),
+                    'types' => array_map(fn($t) => $t->getName(), $pokemon->getTypes()->toArray())
+                ]
+            ], 200);
+        } catch (\DomainException $e) {
+            return $this->json(['error' => $e->getMessage()], 409);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
         }
     }
 }
