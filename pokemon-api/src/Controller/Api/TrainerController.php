@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Application\UseCase\GetTrainerTeam;
 use App\Application\UseCase\AssignPokemonToTrainer;
 
+#[Route('/api/trainers')]
 class TrainerController extends AbstractController
 {
     private GetTrainerTeam $getTrainerTeam;
@@ -20,7 +21,7 @@ class TrainerController extends AbstractController
         $this->assignPokemonToTrainer = $assignPokemonToTrainer;
     }
 
-    #[Route('/api/trainers/{id}/team', name: 'api_trainer_team', methods: ['GET'])]
+    #[Route('/{id}/team', name: 'api_trainer_team', methods: ['GET'])]
     public function getTeam(int $id): JsonResponse
     {
         $data = $this->getTrainerTeam->execute($id);
@@ -32,7 +33,7 @@ class TrainerController extends AbstractController
         return $this->json($data);
     }
 
-    #[Route('/api/trainers/{trainerId}/team/{pokemonId}', name: 'api_assign_pokemon', methods: ['POST'])]
+    #[Route('/{trainerId}/team/{pokemonId}', name: 'api_assign_pokemon', methods: ['POST'])]
     public function assignPokemon(int $trainerId, int $pokemonId): JsonResponse
     {
         $this->assignPokemonToTrainer->execute($trainerId, $pokemonId);

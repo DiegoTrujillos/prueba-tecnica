@@ -24,8 +24,14 @@ class RemoveMoveFromPokemon
         $this->tokenStorage = $tokenStorage;
     }
 
-    public function execute(int $pokemonId, int $moveId)
+    public function execute(mixed $pokemonId, mixed $moveId)
     {
+        if (!is_numeric($pokemonId) || !is_numeric($moveId)) {
+            throw new \InvalidArgumentException('Los IDs de Pokémon y Movimiento deben ser números.');
+        }
+        $pokemonId = (int)$pokemonId;
+        $moveId = (int)$moveId;
+
         $token = $this->tokenStorage->getToken();
         /** @var User|null $currentUser */
         $currentUser = $token ? $token->getUser() : null;
@@ -48,8 +54,10 @@ class RemoveMoveFromPokemon
             throw new NotFoundHttpException('Movimiento no encontrado.');
         }
 
-        $pokemon->removeMove($move);
-        $this->pokemonRepository->save($pokemon);
+        if ($pokemon->getMoves()->contains($move)) {
+            $pokemon->removeMove($move);
+            $this->pokemonRepository->save($pokemon);
+        }
 
         return $pokemon;
     }

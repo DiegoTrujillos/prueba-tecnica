@@ -24,8 +24,16 @@ class AssignPokemonToTrainer
         $this->tokenStorage = $tokenStorage;
     }
 
-    public function execute(int $trainerId, int $pokemonId): void
+    public function execute($trainerId, $pokemonId): void
     {
+        if (!is_int($trainerId) || $trainerId <= 0) {
+            throw new \InvalidArgumentException('El ID del entrenador debe ser un número entero positivo.');
+        }
+
+        if (!is_int($pokemonId) || $pokemonId <= 0) {
+            throw new \InvalidArgumentException('El ID del Pokémon debe ser un número entero positivo.');
+        }
+
         $token = $this->tokenStorage->getToken();
         /** @var User|null $currentUser */
         $currentUser = $token ? $token->getUser() : null;

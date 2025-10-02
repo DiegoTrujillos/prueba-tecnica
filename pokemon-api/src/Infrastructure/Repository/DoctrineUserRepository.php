@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Infrastructure\Repository;
 
 use App\Domain\Entity\User;
@@ -26,7 +25,8 @@ class DoctrineUserRepository extends ServiceEntityRepository implements UserRepo
 
     public function save(User $user): void
     {
-        $this->_em->persist($user);
-        $this->_em->flush();
+        $em = $this->getEntityManager();
+        $em->persist($user);
+        $em->flush();
     }
 }

@@ -24,8 +24,16 @@ class AssignMoveToPokemon
         $this->tokenStorage = $tokenStorage;
     }
 
-    public function execute(int $pokemonId, int $moveId)
+    public function execute($pokemonId, $moveId)
     {
+        if (!is_int($pokemonId) || $pokemonId <= 0) {
+            throw new \InvalidArgumentException('El ID del Pokémon debe ser un número entero positivo.');
+        }
+
+        if (!is_int($moveId) || $moveId <= 0) {
+            throw new \InvalidArgumentException('El ID del movimiento debe ser un número entero positivo.');
+        }
+
         $token = $this->tokenStorage->getToken();
         /** @var User|null $currentUser */
         $currentUser = $token ? $token->getUser() : null;
@@ -48,7 +56,7 @@ class AssignMoveToPokemon
             throw new NotFoundHttpException('Movimiento no encontrado.');
         }
 
-       $pokemonTypeIds = [];
+        $pokemonTypeIds = [];
         foreach ($pokemon->getTypes() as $type) {
             $pokemonTypeIds[] = $type->getId();
         }

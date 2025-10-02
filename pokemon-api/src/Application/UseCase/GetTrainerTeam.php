@@ -4,6 +4,7 @@ namespace App\Application\UseCase;
 use App\Domain\Repository\PokemonRepositoryInterface;
 use App\Domain\Repository\UserRepositoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class GetTrainerTeam
 {
@@ -21,22 +22,23 @@ class GetTrainerTeam
         $this->tokenStorage = $tokenStorage;
     }
 
-    public function execute(int $trainerId): ?array
+    public function execute(mixed $trainerId): ?array
     {
+        if (!is_numeric($trainerId)) {
+            throw new \InvalidArgumentException('El ID del entrenador debe ser un número.');
+        }
+        $trainerId = (int)$trainerId;
+
         $token = $this->tokenStorage->getToken();
         /** @var \App\Domain\Entity\User|null $currentUser */
         $currentUser = $token ? $token->getUser() : null;
 
-        if (!$currentUser) {
-            throw new \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException(
-                'No autenticado.'
-            );
+        if (!$currentUser instanceof \App\Domain\Entity\User) {
+            throw new AccessDeniedHttpException('No autenticado.');
         }
 
         if (!in_array('ROLE_PROFESSOR', $currentUser->getRoles()) && $currentUser->getId() !== $trainerId) {
-            throw new \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException(
-                'No tienes permiso para ver este equipo.'
-            );
+            throw new AccessDeniedHttpException('No tienes permiso para ver este equipo.');
         }
 
         $trainer = $this->userRepository->findById($trainerId);
@@ -47,17 +49,31 @@ class GetTrainerTeam
         $team = $this->pokemonRepository->findByTrainer($trainer);
 
         $teamData = array_map(function($pokemon) {
+            $types = [];
+            foreach ($pokemon->getTypes() ?? [] as $type) {
+                if (method_exists($type, 'getName')) {
+                    $types[] = $type->getName();
+                }
+            }
+
+            $moves = [];
+            foreach ($pokemon->getMoves() ?? [] as $move) {
+                if (method_exists($move, 'getId') && method_exists($move, 'getName')) {
+                    $moves[] = ['id' => $move->getId(), 'name' => $move->getName()];
+                }
+            }
+
             return [
                 'id' => $pokemon->getId(),
                 'name' => $pokemon->getName(),
                 'nickname' => $pokemon->getNickname(),
-                'types' => array_map(fn($t) => $t->getName(), $pokemon->getType()->toArray()),
+                'types' => $types,
                 'level' => $pokemon->getLevel(),
                 'health_points' => $pokemon->getHealthPoints(),
                 'attack' => $pokemon->getAttack(),
                 'defense' => $pokemon->getDefense(),
                 'speed' => $pokemon->getSpeed(),
-                'moves' => array_map(fn($m) => ['id' => $m->getId(), 'name' => $m->getName()], $pokemon->getMoves()->toArray())
+                'moves' => $moves
             ];
         }, $team);
 
