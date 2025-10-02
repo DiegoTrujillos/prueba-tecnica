@@ -54,6 +54,10 @@ class RemoveMoveFromPokemon
             throw new NotFoundHttpException('Movimiento no encontrado.');
         }
 
+        if (!$pokemon->getMoves()->contains($move)) {
+            throw new \DomainException('El movimiento no está asignado a este Pokémon y no puede ser eliminado.');
+        }
+
         if ($pokemon->getMoves()->contains($move)) {
             $pokemon->removeMove($move);
             $this->pokemonRepository->save($pokemon);

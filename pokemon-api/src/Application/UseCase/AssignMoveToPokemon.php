@@ -7,6 +7,7 @@ use App\Domain\Repository\MoveRepositoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AssignMoveToPokemon
 {
@@ -54,6 +55,12 @@ class AssignMoveToPokemon
         $move = $this->moveRepository->findById($moveId);
         if (!$move) {
             throw new NotFoundHttpException('Movimiento no encontrado.');
+        }
+
+        foreach ($pokemon->getMoves() as $existingMove) {
+            if ($existingMove->getId() === $move->getId()) {
+                throw new HttpException(409, 'El Pokémon ya tiene asignado este movimiento.');
+            }
         }
 
         $pokemonTypeIds = [];

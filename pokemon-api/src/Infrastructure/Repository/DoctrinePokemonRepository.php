@@ -24,7 +24,6 @@ class DoctrinePokemonRepository extends ServiceEntityRepository implements Pokem
         return $this->createQueryBuilder('p')
             ->where('p.trainer IS NULL')
             ->addSelect('RAND() as HIDDEN rand')
-            ->orderBy('rand')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
